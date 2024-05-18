@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pessoas que Precisam de Doação</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* Estilos para os cards */
+        .card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease-in-out;
+            width: 300px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Efeito de profundidade quando hover */
+        .card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilos para o título dos cards */
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        /* Estilos para o conteúdo dos cards */
+        .card p {
+            color: #666;
+        }
+
+        /* Estilos para o botão de excluir */
+        .delete-button {
+            background-color: #ff6347;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Pessoas que Precisam de Doação</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Doação</a></li>
+            </ul>
+        </nav>
+    </header>
+    <section id="intro">
+        <div class="container">
+            <h2>Encontre Ajuda Aqui</h2>
+            <p>Se você está precisando de ajuda com alimentos, roupas, ou outros itens essenciais, você está no lugar certo. Por favor, preencha o formulário abaixo com suas informações para que possamos ajudá-lo melhor. <br>
+            Não se preocupe pois não saberemos seu nome!</p>
+            <!-- Formulário para pessoas que precisam de doações -->
+            <form id="donation-form">
+                <label for="hasChildren">Tem crianças?</label>
+                <input type="checkbox" id="hasChildren" name="hasChildren">
+                
+                <div id="children-age" style="display: none;">
+                    <label for="childrenAge">Idade das crianças:</label>
+                    <input type="text" id="childrenAge" name="childrenAge">
+                </div>
+                
+                <label for="contactMethod">Meio de Contato para Doação:</label>
+                <input type="text" id="contactMethod" name="contactMethod" required>
+                
+                <label for="address">Endereço:</label>
+                <textarea id="address" name="address" rows="4" required></textarea>
+                
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </section>
+    <div id="info-display">
+        <!-- Local onde as informações serão exibidas -->
+    </div>
+    <footer>
+        <div class="container">
+            Desenvolvido por <a href="https://www.linkedin.com/in/kamily-sime%C3%A3o-24b88a20b/" target="_blank">Kamily Simeão</a>
+        </div>
+    </footer>
+    <script src="./js/script.js"></script>
+    <script>
+        // Função para carregar posts armazenados no localStorage
+        function loadPosts() {
+            const storedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            const infoDisplay = document.getElementById('info-display');
+            infoDisplay.innerHTML = ''; // Limpa o conteúdo atual para evitar duplicatas
+            
+            // Adiciona cada post armazenado ao infoDisplay
+            storedPosts.forEach((post, index) => {
+                const card = createCard(post, index);
+                infoDisplay.appendChild(card);
+            });
+        }
+
+        // Função para salvar posts no localStorage
+        function savePost(post) {
+            const storedPosts = JSON.parse(localStorage.getItem('posts')) || [];
+            storedPosts.push(post);
+            localStorage.setItem('posts', JSON.stringify(storedPosts));
+        }
+
+        // Função para criar um novo cartão com as informações do post
+        function createCard(post, index) {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            const title = document.createElement('h3');
+            title.textContent = `Pessoa ${index + 1}`;
+            const childrenInfo = document.createElement('p');
+            childrenInfo.textContent = post.hasChildren ? `Tem crianças com ${post.childrenAge} anos.` : 'Não tem crianças.';
+            const contactInfo = document.createElement('p');
+            contactInfo.textContent = `Método de contato: ${post.contactMethod}`;
+            const addressInfo = document.createElement('p');
+            addressInfo.textContent = `Endereço: ${post.address}`;
+
+            // Botão de excluir
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Excluir';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', function() {
+                const storedPosts = JSON.parse(localStorage.getItem('posts'));
+                storedPosts.splice(index, 1); // Remove o post do array
+                localStorage.setItem('posts', JSON.stringify(storedPosts)); // Atualiza localStorage
+                loadPosts(); // Recarrega os posts na página
+            });
+
+            // Adiciona todos os elementos ao card
+            card.appendChild(title);
+            card.appendChild(childrenInfo);
+            card.appendChild(contactInfo);
+            card.appendChild(addressInfo);
+            card.appendChild(deleteButton);
+            
+            return card;
+        }
+
+        // Função para lidar com o envio do formulário
+        document.getElementById('donation-form').addEventListener('submit', function(event) {
+            // Impede o comportamento padrão do formulário
+            event.preventDefault();
+            
+            // Captura os dados do formulário
+            const hasChildren = document.getElementById('hasChildren').checked;
+            const childrenAge = document.getElementById('childrenAge').value;
+            const contactMethod = document.getElementById('contactMethod').value;
+            const address = document.getElementById('address').value;
+
+            // Salva o post no localStorage
+            savePost({
+                hasChildren: hasChildren,
+                childrenAge: childrenAge,
+                contactMethod: contactMethod,
+                address: address
+            });
+
+            // Recarrega os posts na página
+            loadPosts();
+
+            // Limpa o formulário
+            this.reset();
+        });
+
+        // Carrega posts quando a página é carregada
+        window.addEventListener('load', loadPosts);
+    </script>
+</body>
+</html>

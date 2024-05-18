@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Doação de Alimentos</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <style>
+        /* Estilos para os cards de alimentos */
+        .food-card {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s ease-in-out;
+            width: 300px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Efeito de profundidade quando hover */
+        .food-card:hover {
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilos para o título dos cards de alimentos */
+        .food-card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        /* Estilos para o conteúdo dos cards de alimentos */
+        .food-card p {
+            color: #666;
+        }
+
+        /* Estilos para o botão de excluir */
+        .delete-button {
+            background-color: #ff6347;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Estilos para o botão de contato */
+        .contact-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Plataforma de Doação de Alimentos</h1>
+    </header>
+    <section id="intro">
+        <div class="container">
+            <h2>Bem-vindo à nossa Plataforma de Doação de Alimentos!</h2>
+            <p>Nossa plataforma foi criada com o objetivo de conectar pessoas que possam ajudar e organizações que estão interessados em doar alimentos excedentes para aqueles que mais precisam.</p>
+            <p>Se você é um interessado em contribuir, sinta-se à vontade para listar os alimentos disponíveis abaixo. Se você está buscando alimentos, navegue pela lista e entre em contato com os estabelecimentos para coletá-los.</p>
+            <div class="buttons-container">
+                <a href="#section" class="btn">Sou Doador</a>
+                <a href="index2.html" class="btn">Preciso de Doação</a>
+            </div>
+        </div>
+    </section>
+    <main>
+        <section id="food-list">
+            <!-- Lista de alimentos disponíveis será inserida aqui -->
+        </section>
+    </main>
+    <button id="add-food-btn">Adicionar Alimento Disponível</button>
+    <div id="food-form-container" style="display: none;">
+        <form id="food-form">
+            <label for="food-name">Nome do Alimento:</label>
+            <input type="text" id="food-name" required>
+            <label for="food-quantity">Quantidade:</label>
+            <input type="number" id="food-quantity" required>
+            <label for="food-location">Local de Retirada:</label>
+            <input type="text" id="food-location" required>
+            <label for="contact-link">Link de Contato:</label>
+            <input type="url" id="contact-link" required>
+            <button type="submit">Adicionar</button>
+        </form>
+    </div>
+    <footer>
+        <div class="container">
+            Desenvolvido por <a href="https://www.linkedin.com/in/kamily-sime%C3%A3o-24b88a20b/" target="_blank">Kamily Simeão</a>
+        </div>
+    </footer>
+    <script src="./js/script.js"></script>
+    <script>
+        // Função para carregar alimentos armazenados no localStorage
+        function loadFoods() {
+            const storedFoods = JSON.parse(localStorage.getItem('foods')) || [];
+            const foodList = document.getElementById('food-list');
+            foodList.innerHTML = ''; // Limpa o conteúdo atual para evitar duplicatas
+            
+            // Adiciona cada alimento armazenado à foodList
+            storedFoods.forEach((food, index) => {
+                const card = createFoodCard(food, index);
+                foodList.appendChild(card);
+            });
+        }
+
+        // Função para salvar alimento no localStorage
+        function saveFood(food) {
+            const storedFoods = JSON.parse(localStorage.getItem('foods')) || [];
+            storedFoods.push(food);
+            localStorage.setItem('foods', JSON.stringify(storedFoods));
+        }
+
+        // Função para criar um novo cartão de alimento com as informações do alimento
+        function createFoodCard(food, index) {
+            const card = document.createElement('div');
+            card.classList.add('food-card');
+            const title = document.createElement('h3');
+            title.textContent = `Alimento ${index + 1}`;
+            const nameInfo = document.createElement('p');
+            nameInfo.textContent = `Nome: ${food.name}`;
+            const quantityInfo = document.createElement('p');
+            quantityInfo.textContent = `Quantidade: ${food.quantity}`;
+            const locationInfo = document.createElement('p');
+            locationInfo.textContent = `Local de Retirada: ${food.location}`;
+
+            // Botão de contato
+            const contactButton = document.createElement('a');
+            contactButton.textContent = 'Contato';
+            contactButton.classList.add('contact-button');
+            contactButton.href = food.contactLink;
+            contactButton.target = "_blank";
+
+            // Botão de excluir
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Excluir';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', function() {
+                const storedFoods = JSON.parse(localStorage.getItem('foods'));
+                storedFoods.splice(index, 1); // Remove o alimento do array
+                localStorage.setItem('foods', JSON.stringify(storedFoods)); // Atualiza localStorage
+                loadFoods(); // Recarrega os alimentos na página
+            });
+
+            // Adiciona todos os elementos ao card
+            card.appendChild(title);
+            card.appendChild(nameInfo);
+            card.appendChild(quantityInfo);
+            card.appendChild(locationInfo);
+            card.appendChild(contactButton);
+            card.appendChild(deleteButton);
+            
+            return card;
+        }
+
+        // Função para lidar com o envio do formulário
+        document.getElementById('food-form').addEventListener('submit', function(event) {
+            // Impede o comportamento padrão do formulário
+            event.preventDefault();
+            
+            // Captura os dados do formulário
+            const name = document.getElementById('food-name').value;
+            const quantity = document.getElementById('food-quantity').value;
+            const location = document.getElementById('food-location').value;
+            const contactLink = document.getElementById('contact-link').value;
+
+            // Salva o alimento no localStorage
+            saveFood({
+                name: name,
+                quantity: quantity,
+                location: location,
+                contactLink: contactLink
+            });
+
+            // Recarrega os alimentos na página
+            loadFoods();
+
+            // Limpa o formulário
+            this.reset();
+        });
+
+        // Carrega alimentos quando a página é carregada
+        window.addEventListener('load', loadFoods);
+    </script>
+</body>
+</html>
